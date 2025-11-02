@@ -1,4 +1,4 @@
-fastapi
-uvicorn[standard]
-python-multipart
-chardet
+fastapi          # API 서버 프레임워크
+uvicorn[standard]  # FastAPI 실행 서버 (ASGI)
+python-multipart # 파일 업로드(form-data) 처리
+chardet          # 파일 인코딩 자동 감지
