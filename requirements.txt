@@ -1,0 +1,5 @@
+fastapi>=0.110          # API 서버 프레임워크
+uvicorn>=0.29  # FastAPI 실행 서버 (ASGI)
+python-multipart # 파일 업로드(form-data) 처리
+chardet          # 파일 인코딩 자동 감지
+pydantic>=2.7

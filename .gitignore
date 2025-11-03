@@ -1,4 +1,9 @@
-# Python cache
 __pycache__/
-*.py[cod]
-*$py.class
+.venv/
+pytest_cache/
+.cache/
+.coverage
+htmlcov/
+artifacts/
+uploads/
+.DS_Store
