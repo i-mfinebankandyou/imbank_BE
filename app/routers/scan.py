@@ -1,6 +1,7 @@
 # app/routers/scan.py
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
-from app.modules.scanner.scan import scan_text  # ✅ 스캐너 로직 연결
+from app.modules.scanner.scan import scan_text  # 스캐너 로직 연결
+from app.modules.scanner.utils import extract_text_with_ocr # OCR 함수
 
 router = APIRouter(tags=["scan"])
 
@@ -29,29 +30,26 @@ async def scan(
     if ext and ext not in ALLOWED_EXT:
         raise HTTPException(status_code=415, detail=f"File extension not allowed: {ext}")
 
+    extracted_text: str = "" # 추출 텍스트 변수
+
     # 4) 타입별 처리 (.txt만 분석, 나머지는 아직 미구현)
     if ext == ".txt" or (not ext and (file.content_type or "").startswith("text/")):
         # 4-1) 텍스트 디코딩 (UTF-8 우선, 실패 시 무시)
-        text = data.decode("utf-8", errors="ignore")
+        extracted_text = data.decode("utf-8", errors="ignore")
+    
+    else:
+        # 4-2) 그 외 파일 (pdf, png, jpg): OCR 함수 호출!
+        extracted_text = extract_text_with_ocr(data)
 
-        # 4-2) 정규식 기반 PII 스캔
-        result = scan_text(text, context_window=context_window)
+    # 4-3) 정규식 기반 PII 스캔 -> 공통 로직 (텍스트 스캔)
+    result = scan_text(extracted_text, context_window=context_window)
 
-        # 4-3) 응답
-        return {
+    # 5) 응답
+    return {
             "filename": file.filename,
             "content_type": file.content_type,
             "size_kb": round(len(data) / 1024, 2),
             "detected_counts": result["counts"],
             "findings": result["findings"],  # 각 항목: type/value/line/col/context_lines/context
-            "message": "Text scanned successfully.",
-        }
-
-    # 5) 미지원 타입(차후 OCR/PDF 파이프라인 연결 예정)
-    return {
-        "filename": file.filename,
-        "content_type": file.content_type,
-        "size_kb": round(len(data) / 1024, 2),
-        "accepted_ext": sorted(list(ALLOWED_EXT)),
-        "message": f"File received but scanning for {ext or file.content_type} not implemented yet.",
+            "message": "Scan successful.",
     }
