@@ -24,11 +24,11 @@ def correct_text_with_llm(text: str, *, timeout: int = 30, max_chars: int = 8000
     """
     api_key = os.getenv("UPSTAGE_API_KEY")
     if not api_key:
-        # 운영 중이면 원문 반환이 안정적. 개발 중엔 예외가 더 눈에 잘 띔.
+        
         # raise LLMCorrectionError("UPSTAGE_API_KEY not set")
         return text
 
-    # 너무 긴 텍스트는 잘라서 보냄(해커톤/실무 안전장치)
+   
     payload_text = text[:max_chars]
 
     try:
