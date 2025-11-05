@@ -2,6 +2,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
 from app.modules.scanner.scan import scan_text  # 스캐너 로직 연결
 from app.modules.scanner.utils import extract_text_with_ocr # OCR 함수
+from app.modules.scanner.llm_filter import correct_text_with_llm  #  LLM 교정 추가
 
 router = APIRouter(tags=["scan"])
 
@@ -40,6 +41,10 @@ async def scan(
     else:
         # 4-2) 그 외 파일 (pdf, png, jpg): OCR 함수 호출!
         extracted_text = extract_text_with_ocr(data)
+
+
+        # 4-2.5) LLM으로 텍스트 교정
+        extracted_text = correct_text_with_llm(extracted_text)
 
     # 4-3) 정규식 기반 PII 스캔 -> 공통 로직 (텍스트 스캔)
     result = scan_text(extracted_text, context_window=context_window)

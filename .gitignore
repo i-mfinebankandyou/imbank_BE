@@ -7,3 +7,4 @@ htmlcov/
 artifacts/
 uploads/
 .DS_Store
+.vscode/
